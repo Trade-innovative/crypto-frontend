@@ -1,26 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ApexCrypto - Live Market Platform</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexCrypto | Institutional Digital Asset Platform</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
-  <nav class="navbar">
-    <h2>ApexCrypto</h2>
-    <div>
-      <a href="login.html" class="btn btn-outline">Login</a>
-      <a href="signup.html" class="btn btn-primary">Sign Up</a>
-    </div>
-  </nav>
+<body class="landing-body">
 
-  <header class="hero">
-    <h1>Track & Manage Your Crypto Portfolio</h1>
-    <p>Live real-time market tracking powered by CoinGecko and Node.js.</p>
-    <div style="margin-top: 1.5rem;">
-      <a href="signup.html" class="btn btn-primary">Get Started Free</a>
-    </div>
+  <!-- Top Announcement / Ticker Strip -->
+  <header class="top-nav-container">
+    <nav class="navbar landing-nav">
+      <div class="brand">
+        <i class="fas fa-chart-line brand-icon"></i>
+        <span>Apex<strong>Crypto</strong></span>
+      </div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#markets">Markets</a>
+        <a href="#security">Security</a>
+      </div>
+      <div class="nav-actions">
+        <a href="login.html" class="btn btn-outline">Sign In</a>
+        <a href="signup.html" class="btn btn-primary">Get Started</a>
+      </div>
+    </nav>
   </header>
+
+  <!-- Hero Section -->
+  <section class="landing-hero">
+    <div class="hero-badge">
+      <i class="fas fa-bolt"></i> Real-Time Market Execution
+    </div>
+    <h1 class="hero-title">
+      Institutional-Grade <br />
+      <span class="gradient-text">Crypto Portfolio Management</span>
+    </h1>
+    <p class="hero-subtitle">
+      Access real-time global market feeds, manage diversified holdings, and track digital assets with sub-millisecond execution speeds.
+    </p>
+    <div class="hero-cta-group">
+      <a href="signup.html" class="btn btn-primary btn-lg">Create Free Account</a>
+      <a href="login.html" class="btn btn-outline btn-lg">Launch Terminal</a>
+    </div>
+  </section>
+
+  <!-- Live Market Ticker Row -->
+  <section id="markets" class="market-strip">
+    <div class="market-card">
+      <div class="market-card-top">
+        <span><i class="fab fa-bitcoin text-gold"></i> Bitcoin</span>
+        <span class="ticker-badge positive">+2.4%</span>
+      </div>
+      <h4 id="landing-btc">$64,250.00</h4>
+      <p class="market-sub">BTC / USD</p>
+    </div>
+
+    <div class="market-card">
+      <div class="market-card-top">
+        <span><i class="fab fa-ethereum text-indigo"></i> Ethereum</span>
+        <span class="ticker-badge positive">+1.8%</span>
+      </div>
+      <h4 id="landing-eth">$3,420.50</h4>
+      <p class="market-sub">ETH / USD</p>
+    </div>
+
+    <div class="market-card">
+      <div class="market-card-top">
+        <span><i class="fas fa-coins text-cyan"></i> Solana</span>
+        <span class="ticker-badge positive">+5.1%</span>
+      </div>
+      <h4 id="landing-sol">$148.20</h4>
+      <p class="market-sub">SOL / USD</p>
+    </div>
+
+    <div class="market-card">
+      <div class="market-card-top">
+        <span><i class="fas fa-dollar-sign text-green"></i> Tether</span>
+        <span class="ticker-badge neutral">0.0%</span>
+      </div>
+      <h4>$1.00</h4>
+      <p class="market-sub">USDT / USD</p>
+    </div>
+  </section>
+
+  <!-- Feature Highlights -->
+  <section id="features" class="landing-section">
+    <div class="section-heading">
+      <h2>Engineered for Precision</h2>
+      <p>Built with reliable architecture to keep portfolio management intuitive and transparent.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-box">
+        <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+        <h3>Bank-Grade Security</h3>
+        <p>JWT-based state authentication with salted password hashing keeping account credentials protected.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon"><i class="fas fa-gauge-high"></i></div>
+        <h3>Live Market Synchronization</h3>
+        <p>Real-time asset pricing directly connected to CoinGecko’s global decentralized liquidity data.</p>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon"><i class="fas fa-wallet"></i></div>
+        <h3>Unified Multi-Asset Wallet</h3>
+        <p>Track your USD cash balance alongside major digital assets with automated profit and loss monitoring.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2026 ApexCrypto Platform. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script>
+    // Fetch live prices on the landing page
+    async function loadLandingPrices() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/crypto/prices`);
+        const data = await res.json();
+        if (data.bitcoin?.usd) document.getElementById('landing-btc').textContent = `$${data.bitcoin.usd.toLocaleString()}`;
+        if (data.ethereum?.usd) document.getElementById('landing-eth').textContent = `$${data.ethereum.usd.toLocaleString()}`;
+        if (data.solana?.usd) document.getElementById('landing-sol').textContent = `$${data.solana.usd.toLocaleString()}`;
+      } catch (err) {
+        console.error('Could not refresh landing tickers', err);
+      }
+    }
+    loadLandingPrices();
+  </script>
 </body>
 </html>
