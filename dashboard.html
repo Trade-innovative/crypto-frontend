@@ -3,41 +3,167 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ApexCrypto - Dashboard</title>
+  <title>ApexCrypto - Trading Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <nav class="navbar">
     <h2>ApexCrypto</h2>
-    <button id="logout-btn" class="btn btn-outline">Logout</button>
+    <div class="nav-right">
+      <span id="kyc-badge" class="badge badge-unverified">KYC: Unverified</span>
+      <button id="kyc-btn" class="btn btn-outline-sm">Verify ID</button>
+      <button id="logout-btn" class="btn btn-outline-sm">Logout</button>
+    </div>
   </nav>
 
   <main class="container">
-    <section class="card balance-card">
-      <h3>Portfolio Cash Balance</h3>
-      <p id="cash-balance" class="balance-text">$0.00</p>
+    <!-- Top Action & Balance Banner -->
+    <section class="card balance-grid">
+      <div>
+        <h3>Available USD Balance</h3>
+        <p id="cash-balance" class="balance-text">$10,000.00</p>
+      </div>
+      <div class="crypto-sub-balances">
+        <div>
+          <span class="sub-label">BTC Balance</span>
+          <p id="btc-balance" class="sub-val">0.0500 BTC</p>
+        </div>
+        <div>
+          <span class="sub-label">USDT Balance</span>
+          <p id="usdt-balance" class="sub-val">500.00 USDT</p>
+        </div>
+      </div>
+      <div class="action-buttons">
+        <button id="open-deposit-btn" class="btn btn-primary">Deposit</button>
+        <button id="open-withdraw-btn" class="btn btn-outline">Withdraw</button>
+      </div>
     </section>
 
-    <section class="card">
-      <h3>Your Crypto Holdings</h3>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Asset</th>
-            <th>Holdings</th>
-            <th>Avg Buy Price</th>
-            <th>Current Price</th>
-            <th>Total Value</th>
-          </tr>
-        </thead>
-        <tbody id="holdings-table-body">
-          <tr>
-            <td colspan="5" style="text-align:center;">Loading your portfolio...</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <!-- Main Content: Trade Panel + Holdings -->
+    <div class="grid-2col">
+      <!-- Live Trade Terminal -->
+      <section class="card">
+        <h3>Quick Trade Terminal</h3>
+        <form id="trade-form" class="trade-form">
+          <div class="form-group">
+            <label>Asset</label>
+            <select id="trade-coin">
+              <option value="bitcoin">Bitcoin (BTC)</option>
+              <option value="ethereum">Ethereum (ETH)</option>
+              <option value="solana">Solana (SOL)</option>
+              <option value="tether">Tether (USDT)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Current Market Price</label>
+            <input type="text" id="trade-price" value="Fetching..." readonly>
+          </div>
+          <div class="form-group">
+            <label>Amount to Buy</label>
+            <input type="number" id="trade-amount" step="any" placeholder="0.01" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Execute Buy Order</button>
+        </form>
+      </section>
+
+      <!-- Asset Holdings -->
+      <section class="card">
+        <h3>Your Portfolio Holdings</h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Asset</th>
+              <th>Amount</th>
+              <th>Avg Buy</th>
+              <th>Market Val</th>
+            </tr>
+          </thead>
+          <tbody id="holdings-table-body">
+            <tr>
+              <td colspan="4" style="text-align: center;">Loading assets...</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
   </main>
+
+  <!-- DEPOSIT MODAL -->
+  <div id="deposit-modal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Deposit Funds</h3>
+        <span class="close-modal" data-close="deposit-modal">&times;</span>
+      </div>
+      <div class="form-group">
+        <label>Select Deposit Method</label>
+        <select id="deposit-method">
+          <option value="btc">Bitcoin (BTC Address)</option>
+          <option value="usdt">USDT (TRC-20 Address)</option>
+          <option value="bank">Bank Transfer</option>
+        </select>
+      </div>
+      <div id="deposit-details" class="modal-info-box">
+        <!-- Injected via JS -->
+      </div>
+      <button class="btn btn-primary" data-close="deposit-modal">Done</button>
+    </div>
+  </div>
+
+  <!-- WITHDRAW MODAL -->
+  <div id="withdraw-modal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Withdraw Funds</h3>
+        <span class="close-modal" data-close="withdraw-modal">&times;</span>
+      </div>
+      <form id="withdraw-form">
+        <div class="form-group">
+          <label>Withdrawal Method</label>
+          <select id="withdraw-method">
+            <option value="btc">Bitcoin (BTC)</option>
+            <option value="usdt">USDT (TRC-20)</option>
+            <option value="bank">Bank Wire</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Destination Address / Bank Account</label>
+          <input type="text" id="withdraw-address" required placeholder="Paste address or account info">
+        </div>
+        <div class="form-group">
+          <label>Amount (USD Value)</label>
+          <input type="number" id="withdraw-amount" min="10" step="any" required placeholder="100.00">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Withdrawal</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- KYC MODAL -->
+  <div id="kyc-modal" class="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Identity Verification (KYC)</h3>
+        <span class="close-modal" data-close="kyc-modal">&times;</span>
+      </div>
+      <form id="kyc-form">
+        <div class="form-group">
+          <label>ID Document Type</label>
+          <select id="kyc-doc-type">
+            <option value="passport">International Passport</option>
+            <option value="drivers_license">Driver's License</option>
+            <option value="national_id">National Identity Card</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Document / ID Number</label>
+          <input type="text" id="kyc-doc-number" required placeholder="A12345678">
+        </div>
+        <p class="modal-subtext">Level 1 verification unlocks bank transfers and higher withdrawal limits.</p>
+        <button type="submit" class="btn btn-primary">Submit Verification</button>
+      </form>
+    </div>
+  </div>
 
   <script src="js/config.js"></script>
   <script src="js/dashboard.js"></script>
