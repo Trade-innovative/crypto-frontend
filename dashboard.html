@@ -1,168 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ApexCrypto - Trading Dashboard</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ApexCrypto | Institutional Trading & Investment</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
 </head>
-<body>
-  <nav class="navbar">
-    <h2>ApexCrypto</h2>
-    <div class="nav-right">
-      <span id="kyc-badge" class="badge badge-unverified">KYC: Unverified</span>
-      <button id="kyc-btn" class="btn btn-outline-sm">Verify ID</button>
-      <button id="logout-btn" class="btn btn-outline-sm">Logout</button>
-    </div>
-  </nav>
+<body class="dashboard-body">
 
-  <main class="container">
-    <!-- Top Action & Balance Banner -->
-    <section class="card balance-grid">
-      <div>
-        <h3>Available USD Balance</h3>
-        <p id="cash-balance" class="balance-text">$10,000.00</p>
-      </div>
-      <div class="crypto-sub-balances">
-        <div>
-          <span class="sub-label">BTC Balance</span>
-          <p id="btc-balance" class="sub-val">0.0500 BTC</p>
-        </div>
-        <div>
-          <span class="sub-label">USDT Balance</span>
-          <p id="usdt-balance" class="sub-val">500.00 USDT</p>
-        </div>
-      </div>
-      <div class="action-buttons">
-        <button id="open-deposit-btn" class="btn btn-primary">Deposit</button>
-        <button id="open-withdraw-btn" class="btn btn-outline">Withdraw</button>
-      </div>
-    </section>
-
-    <!-- Main Content: Trade Panel + Holdings -->
-    <div class="grid-2col">
-      <!-- Live Trade Terminal -->
-      <section class="card">
-        <h3>Quick Trade Terminal</h3>
-        <form id="trade-form" class="trade-form">
-          <div class="form-group">
-            <label>Asset</label>
-            <select id="trade-coin">
-              <option value="bitcoin">Bitcoin (BTC)</option>
-              <option value="ethereum">Ethereum (ETH)</option>
-              <option value="solana">Solana (SOL)</option>
-              <option value="tether">Tether (USDT)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Current Market Price</label>
-            <input type="text" id="trade-price" value="Fetching..." readonly>
-          </div>
-          <div class="form-group">
-            <label>Amount to Buy</label>
-            <input type="number" id="trade-amount" step="any" placeholder="0.01" required>
-          </div>
-          <button type="submit" class="btn btn-primary">Execute Buy Order</button>
-        </form>
-      </section>
-
-      <!-- Asset Holdings -->
-      <section class="card">
-        <h3>Your Portfolio Holdings</h3>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Asset</th>
-              <th>Amount</th>
-              <th>Avg Buy</th>
-              <th>Market Val</th>
-            </tr>
-          </thead>
-          <tbody id="holdings-table-body">
-            <tr>
-              <td colspan="4" style="text-align: center;">Loading assets...</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-    </div>
-  </main>
-
-  <!-- DEPOSIT MODAL -->
-  <div id="deposit-modal" class="modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Deposit Funds</h3>
-        <span class="close-modal" data-close="deposit-modal">&times;</span>
-      </div>
-      <div class="form-group">
-        <label>Select Deposit Method</label>
-        <select id="deposit-method">
-          <option value="btc">Bitcoin (BTC Address)</option>
-          <option value="usdt">USDT (TRC-20 Address)</option>
-          <option value="bank">Bank Transfer</option>
-        </select>
-      </div>
-      <div id="deposit-details" class="modal-info-box">
-        <!-- Injected via JS -->
-      </div>
-      <button class="btn btn-primary" data-close="deposit-modal">Done</button>
+  <!-- Top Real-Time Ticker Bar -->
+  <div class="crypto-ticker-bar">
+    <div class="ticker-track">
+      <span><i class="fab fa-bitcoin text-gold"></i> BTC/USD: <strong id="ticker-btc">$64,250.00</strong></span>
+      <span><i class="fab fa-ethereum text-indigo"></i> ETH/USD: <strong id="ticker-eth">$3,420.50</strong></span>
+      <span><i class="fas fa-coins text-cyan"></i> SOL/USD: <strong id="ticker-sol">$148.20</strong></span>
+      <span><i class="fas fa-dollar-sign text-green"></i> USDT/USD: <strong>$1.00</strong></span>
     </div>
   </div>
 
-  <!-- WITHDRAW MODAL -->
-  <div id="withdraw-modal" class="modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Withdraw Funds</h3>
-        <span class="close-modal" data-close="withdraw-modal">&times;</span>
+  <div class="dashboard-wrapper">
+    <!-- Left Navigation Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <i class="fas fa-chart-line brand-icon"></i>
+        <span>Apex<strong>FX</strong></span>
       </div>
-      <form id="withdraw-form">
-        <div class="form-group">
-          <label>Withdrawal Method</label>
-          <select id="withdraw-method">
-            <option value="btc">Bitcoin (BTC)</option>
-            <option value="usdt">USDT (TRC-20)</option>
-            <option value="bank">Bank Wire</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Destination Address / Bank Account</label>
-          <input type="text" id="withdraw-address" required placeholder="Paste address or account info">
-        </div>
-        <div class="form-group">
-          <label>Amount (USD Value)</label>
-          <input type="number" id="withdraw-amount" min="10" step="any" required placeholder="100.00">
-        </div>
-        <button type="submit" class="btn btn-primary">Submit Withdrawal</button>
-      </form>
-    </div>
-  </div>
 
-  <!-- KYC MODAL -->
-  <div id="kyc-modal" class="modal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Identity Verification (KYC)</h3>
-        <span class="close-modal" data-close="kyc-modal">&times;</span>
+      <div class="user-preview">
+        <div class="avatar"><i class="fas fa-user-shield"></i></div>
+        <div class="user-meta">
+          <h4 id="user-display-name">Trader</h4>
+          <span id="kyc-pill" class="badge badge-unverified">KYC Unverified</span>
+        </div>
       </div>
-      <form id="kyc-form">
-        <div class="form-group">
-          <label>ID Document Type</label>
-          <select id="kyc-doc-type">
-            <option value="passport">International Passport</option>
-            <option value="drivers_license">Driver's License</option>
-            <option value="national_id">National Identity Card</option>
-          </select>
+
+      <nav class="side-menu">
+        <button class="nav-item active" data-tab="tab-overview"><i class="fas fa-wallet"></i> Overview</button>
+        <button class="nav-item" data-tab="tab-trade"><i class="fas fa-exchange-alt"></i> Live Terminal</button>
+        <button class="nav-item" data-tab="tab-deposit"><i class="fas fa-arrow-down"></i> Deposit</button>
+        <button class="nav-item" data-tab="tab-withdraw"><i class="fas fa-arrow-up"></i> Withdraw</button>
+        <button class="nav-item" data-tab="tab-kyc"><i class="fas fa-id-card"></i> Verify Account</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Log Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-viewport">
+      
+      <!-- TAB 1: OVERVIEW -->
+      <section id="tab-overview" class="tab-content active">
+        <div class="dashboard-header">
+          <h2>Financial Dashboard</h2>
+          <span class="date-badge" id="current-date">Live Session</span>
         </div>
-        <div class="form-group">
-          <label>Document / ID Number</label>
-          <input type="text" id="kyc-doc-number" required placeholder="A12345678">
+
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">Total Balance</span>
+            <h3 id="cash-balance" class="metric-value">$10,000.00</h3>
+            <span class="metric-badge positive">+4.2% this week</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Total Profit</span>
+            <h3 class="metric-value text-green">$1,480.25</h3>
+            <span class="metric-badge positive">All-Time Yield</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Active Trade Volume</span>
+            <h3 class="metric-value text-cyan">$3,850.00</h3>
+            <span class="metric-badge neutral">2 Live Orders</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Total Withdrawals</span>
+            <h3 class="metric-value">$0.00</h3>
+            <span class="metric-badge neutral">Processed</span>
+          </div>
         </div>
-        <p class="modal-subtext">Level 1 verification unlocks bank transfers and higher withdrawal limits.</p>
-        <button type="submit" class="btn btn-primary">Submit Verification</button>
-      </form>
-    </div>
+
+        <!-- Chart + Holdings Section -->
+        <div class="content-split">
+          <div class="card chart-box">
+            <div class="card-head">
+              <h3>BTC/USDT Real-Time Market Feed</h3>
+            </div>
+            <!-- Embedded Lightweight TradingView Chart -->
+            <div class="tradingview-widget-container" style="height: 380px; width: 100%;">
+              <iframe 
+                src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_7621c&symbol=BINANCE%3ABTCUSDT&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en" 
+                style="width: 100%; height: 100%; border: none; border-radius: 12px;">
+              </iframe>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Portfolio Holdings</h3>
+            </div>
+            <table class="fx-table">
+              <thead>
+                <tr>
+                  <th>Coin</th>
+                  <th>Amount</th>
+                  <th>Market Value</th>
+                </tr>
+              </thead>
+              <tbody id="holdings-table-body">
+                <tr><td colspan="3" style="text-align:center;">Loading holdings...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: LIVE TRADE TERMINAL -->
+      <section id="tab-trade" class="tab-content">
+        <div class="dashboard-header">
+          <h2>Order Execution Desk</h2>
+        </div>
+        <div class="card trade-station">
+          <form id="trade-form">
+            <div class="trade-grid">
+              <div class="form-group">
+                <label>Instrument</label>
+                <select id="trade-coin">
+                  <option value="bitcoin">Bitcoin (BTC/USD)</option>
+                  <option value="ethereum">Ethereum (ETH/USD)</option>
+                  <option value="solana">Solana (SOL/USD)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Market Price</label>
+                <input type="text" id="trade-price" readonly value="Loading..." />
+              </div>
+              <div class="form-group">
+                <label>Trade Size (Units)</label>
+                <input type="number" id="trade-amount" step="any" placeholder="0.05" required />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Place Instant Order</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- TAB 3: DEPOSIT -->
+      <section id="tab-deposit" class="tab-content">
+        <div class="dashboard-header">
+          <h2>Fund Your Account</h2>
+        </div>
+        <div class="card gateway-card">
+          <div class="gateway-options">
+            <button class="gateway-btn active" data-method="btc"><i class="fab fa-bitcoin"></i> Bitcoin</button>
+            <button class="gateway-btn" data-method="usdt"><i class="fas fa-coins"></i> USDT (TRC-20)</button>
+            <button class="gateway-btn" data-method="bank"><i class="fas fa-university"></i> Bank Wire</button>
+          </div>
+          <div id="deposit-instructions" class="gateway-content">
+            <!-- Populated dynamically via dashboard.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: WITHDRAW -->
+      <section id="tab-withdraw" class="tab-content">
+        <div class="dashboard-header">
+          <h2>Capital Withdrawal</h2>
+        </div>
+        <div class="card gateway-card">
+          <form id="withdraw-form">
+            <div class="form-group">
+              <label>Withdrawal Channel</label>
+              <select id="withdraw-method">
+                <option value="btc">Bitcoin Network</option>
+                <option value="usdt">Tether USD (TRC-20)</option>
+                <option value="bank">Direct Wire Settlement</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Destination Address or Bank Account</label>
+              <input type="text" id="withdraw-address" required placeholder="Enter destination wallet or account number" />
+            </div>
+            <div class="form-group">
+              <label>Amount in USD</label>
+              <input type="number" id="withdraw-amount" min="10" step="any" required placeholder="500.00" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Authorize Withdrawal</button>
+          </form>
+        </div>
+      </section>
+
+      <!-- TAB 5: KYC VERIFICATION -->
+      <section id="tab-kyc" class="tab-content">
+        <div class="dashboard-header">
+          <h2>KYC & Regulatory Compliance</h2>
+        </div>
+        <div class="card gateway-card">
+          <p class="section-desc">Submit your government-issued identification to unlock institutional withdrawal limits and full platform features.</p>
+          <form id="kyc-form">
+            <div class="form-group">
+              <label>Document Class</label>
+              <select id="kyc-doc-type">
+                <option value="passport">International Passport</option>
+                <option value="drivers_license">Driver's License</option>
+                <option value="national_id">National Identity Card</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ID Document Number</label>
+              <input type="text" id="kyc-doc-number" required placeholder="e.g. A9283710" />
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Submit Verification Credentials</button>
+          </form>
+        </div>
+      </section>
+
+    </main>
   </div>
 
   <script src="js/config.js"></script>
