@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ApexCrypto - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar">
+    <h2>ApexCrypto</h2>
+    <button id="logout-btn" class="btn btn-outline">Logout</button>
+  </nav>
 
+  <main class="container">
+    <section class="card balance-card">
+      <h3>Portfolio Cash Balance</h3>
+      <p id="cash-balance" class="balance-text">$0.00</p>
+    </section>
+
+    <section class="card">
+      <h3>Your Crypto Holdings</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Asset</th>
+            <th>Holdings</th>
+            <th>Avg Buy Price</th>
+            <th>Current Price</th>
+            <th>Total Value</th>
+          </tr>
+        </thead>
+        <tbody id="holdings-table-body">
+          <tr>
+            <td colspan="5" style="text-align:center;">Loading your portfolio...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
