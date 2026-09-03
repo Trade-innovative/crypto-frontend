@@ -3,8 +3,28 @@ if (!token) {
   window.location.href = 'login.html';
 }
 
+const user = JSON.parse(localStorage.getItem('user') || '{}');
+if (user.name) {
+  document.getElementById('user-display-name').textContent = user.name;
+}
+
 let marketPrices = {};
 let currentBalance = 10000.00;
+
+// Tab Navigation Switching
+const navItems = document.querySelectorAll('.nav-item');
+const tabContents = document.querySelectorAll('.tab-content');
+
+navItems.forEach(item => {
+  item.addEventListener('click', () => {
+    navItems.forEach(i => i.classList.remove('active'));
+    tabContents.forEach(t => t.classList.remove('active'));
+    
+    item.classList.add('active');
+    const target = item.getAttribute('data-tab');
+    document.getElementById(target)?.classList.add('active');
+  });
+});
 
 // Logout
 document.getElementById('logout-btn')?.addEventListener('click', () => {
@@ -12,80 +32,70 @@ document.getElementById('logout-btn')?.addEventListener('click', () => {
   window.location.href = 'login.html';
 });
 
-// Modal Helpers
-const modals = {
-  deposit: document.getElementById('deposit-modal'),
-  withdraw: document.getElementById('withdraw-modal'),
-  kyc: document.getElementById('kyc-modal')
+// Deposit Methods Setup
+const depositGateways = {
+  btc: `<strong>Method:</strong> Bitcoin (BTC Network)<br>
+        <strong>Wallet Address:</strong> <code style="color:#06b6d4">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</code><br>
+        <small style="color:#f59e0b">Send only BTC to this wallet. Credited after 2 network confirmations.</small>`,
+  usdt: `<strong>Method:</strong> Tether USDT (TRON TRC-20 Network)<br>
+        <strong>Wallet Address:</strong> <code style="color:#06b6d4">TJY8b8p6Dq3WzYfUjK7hQoB21v6g8N5pLe</code><br>
+        <small style="color:#f59e0b">Send only TRC-20 USDT. Instant automated processing.</small>`,
+  bank: `<strong>Method:</strong> International Wire Transfer<br>
+        <strong>Beneficiary Bank:</strong> Ultimax Global Clearing Bank<br>
+        <strong>Account Name:</strong> Ultimax Custody Holding LLC<br>
+        <strong>SWIFT / BIC:</strong> ULTXUS33XXX<br>
+        <strong>Account Number:</strong> 44920193821`
 };
 
-document.getElementById('open-deposit-btn')?.addEventListener('click', () => {
-  renderDepositInfo('btc');
-  modals.deposit.classList.add('active');
-});
+const gatewayBtns = document.querySelectorAll('.gateway-btn');
+const depositInstructions = document.getElementById('deposit-instructions');
 
-document.getElementById('open-withdraw-btn')?.addEventListener('click', () => {
-  modals.withdraw.classList.add('active');
-});
+function setDepositGateway(method) {
+  if (depositInstructions) {
+    depositInstructions.innerHTML = depositGateways[method];
+  }
+}
+setDepositGateway('btc');
 
-document.getElementById('kyc-btn')?.addEventListener('click', () => {
-  modals.kyc.classList.add('active');
-});
-
-document.querySelectorAll('[data-close]').forEach(btn => {
+gatewayBtns.forEach(btn => {
   btn.addEventListener('click', () => {
-    const modalId = btn.getAttribute('data-close');
-    document.getElementById(modalId)?.classList.remove('active');
+    gatewayBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    setDepositGateway(btn.getAttribute('data-method'));
   });
 });
 
-// Deposit Info Handler
-const depositSelect = document.getElementById('deposit-method');
-depositSelect?.addEventListener('change', (e) => renderDepositInfo(e.target.value));
-
-function renderDepositInfo(method) {
-  const box = document.getElementById('deposit-details');
-  if (method === 'btc') {
-    box.innerHTML = `<strong>Network:</strong> Bitcoin<br><strong>Deposit Address:</strong> bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh<br><small style="color:#f59e0b">Send only BTC to this address.</small>`;
-  } else if (method === 'usdt') {
-    box.innerHTML = `<strong>Network:</strong> TRON (TRC-20)<br><strong>Deposit Address:</strong> TJY8b8p6Dq3WzYfUjK7hQoB21v6g8N5pLe<br><small style="color:#f59e0b">Send only USDT TRC-20 to this address.</small>`;
-  } else {
-    box.innerHTML = `<strong>Apex Bank Wire Details:</strong><br>Bank: Apex Global Reserve<br>Account Name: Apex Exchange Custody<br>Account Number: 0192847101<br>Routing / Swift: APEXUS33`;
-  }
-}
-
-// Withdraw Handler
-document.getElementById('withdraw-form')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const amount = parseFloat(document.getElementById('withdraw-amount').value);
-  if (amount > currentBalance) {
-    alert('Insufficient USD funds for this withdrawal.');
-    return;
-  }
-  currentBalance -= amount;
-  document.getElementById('cash-balance').textContent = `$${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
-  modals.withdraw.classList.remove('active');
-  alert(`Withdrawal request of $${amount} submitted for processing.`);
-});
-
-// KYC Handler
-const kycBadge = document.getElementById('kyc-badge');
+// KYC Handling
+const kycPill = document.getElementById('kyc-pill');
 if (localStorage.getItem('kyc_verified') === 'true') {
-  kycBadge.textContent = 'KYC: Verified';
-  kycBadge.className = 'badge badge-verified';
+  kycPill.textContent = 'KYC Verified';
+  kycPill.className = 'badge badge-verified';
 }
 
 document.getElementById('kyc-form')?.addEventListener('submit', (e) => {
   e.preventDefault();
   localStorage.setItem('kyc_verified', 'true');
-  kycBadge.textContent = 'KYC: Verified';
-  kycBadge.className = 'badge badge-verified';
-  modals.kyc.classList.remove('active');
-  alert('KYC documentation submitted and approved!');
+  kycPill.textContent = 'KYC Verified';
+  kycPill.className = 'badge badge-verified';
+  alert('Verification submitted! Your KYC profile is now Level 1 verified.');
 });
 
-// Trade Terminal & Portfolio Loading
-async function initDashboard() {
+// Withdrawals
+document.getElementById('withdraw-form')?.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const amount = parseFloat(document.getElementById('withdraw-amount').value);
+  if (amount > currentBalance) {
+    alert('Insufficient funds available for this withdrawal.');
+    return;
+  }
+  currentBalance -= amount;
+  document.getElementById('cash-balance').textContent = `$${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+  alert(`Withdrawal request of $${amount} submitted for processing.`);
+  e.target.reset();
+});
+
+// Real-Time Data & Tickers
+async function loadPlatformData() {
   try {
     const [portfolioRes, priceRes] = await Promise.all([
       fetch(`${API_BASE_URL}/portfolio`, {
@@ -103,10 +113,16 @@ async function initDashboard() {
     const portfolio = await portfolioRes.json();
     marketPrices = await priceRes.json();
 
+    // Set Balance
     currentBalance = portfolio.cashBalance;
     document.getElementById('cash-balance').textContent = `$${currentBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
 
-    // Render Holdings
+    // Top Ticker updates
+    if (marketPrices.bitcoin?.usd) document.getElementById('ticker-btc').textContent = `$${marketPrices.bitcoin.usd.toLocaleString()}`;
+    if (marketPrices.ethereum?.usd) document.getElementById('ticker-eth').textContent = `$${marketPrices.ethereum.usd.toLocaleString()}`;
+    if (marketPrices.solana?.usd) document.getElementById('ticker-sol').textContent = `$${marketPrices.solana.usd.toLocaleString()}`;
+
+    // Render Holdings Table
     const holdingsTable = document.getElementById('holdings-table-body');
     if (holdingsTable && portfolio.holdings) {
       holdingsTable.innerHTML = portfolio.holdings.map(h => {
@@ -116,14 +132,13 @@ async function initDashboard() {
           <tr>
             <td><strong>${h.symbol}</strong></td>
             <td>${h.amount}</td>
-            <td>$${h.avgBuyPrice.toLocaleString()}</td>
             <td>$${Number(total).toLocaleString()}</td>
           </tr>
         `;
       }).join('');
     }
 
-    // Update Trade Price on change
+    // Update Live Terminal Price
     const coinSelect = document.getElementById('trade-coin');
     const updateTradePrice = () => {
       const selected = coinSelect.value;
@@ -134,11 +149,11 @@ async function initDashboard() {
     updateTradePrice();
 
   } catch (err) {
-    console.error('Failed loading dashboard:', err);
+    console.error('Failed loading platform data:', err);
   }
 }
 
-// Execute Buy Order
+// Trade Execution
 document.getElementById('trade-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const coin = document.getElementById('trade-coin').value;
@@ -147,11 +162,11 @@ document.getElementById('trade-form')?.addEventListener('submit', async (e) => {
   const cost = amount * price;
 
   if (cost > currentBalance) {
-    alert(`Insufficient funds. Order total is $${cost.toFixed(2)}, but you only have $${currentBalance.toFixed(2)}.`);
+    alert(`Insufficient funds. Cost: $${cost.toFixed(2)}, Available: $${currentBalance.toFixed(2)}`);
     return;
   }
 
-  const symbolMap = { bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL', tether: 'USDT' };
+  const symbolMap = { bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL' };
 
   try {
     const res = await fetch(`${API_BASE_URL}/portfolio/buy`, {
@@ -164,12 +179,12 @@ document.getElementById('trade-form')?.addEventListener('submit', async (e) => {
     });
 
     if (res.ok) {
-      alert(`Successfully bought ${amount} ${symbolMap[coin]}!`);
-      initDashboard();
+      alert(`Order filled: Bought ${amount} ${symbolMap[coin]}`);
+      loadPlatformData();
     }
   } catch (err) {
-    alert('Trade execution failed. Verify connection to backend.');
+    alert('Trade execution failed. Check backend connection.');
   }
 });
 
-initDashboard();
+loadPlatformData();
